@@ -1,19 +1,32 @@
 version: '2'
 
 services:
+  nginx:
+    image: nginx:alpine
+    container_name: monar_nginx
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/src
+      - ./config/nginx:/etc/nginx/conf.d
+    depends_on:
+      - web
+
   web:
     build: .
+    container_name: monar_web
     command: python manage.py migrate --noinput
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/project
-    ports:
-      - "8000:8000"
+    expose:
+      - "8000"
     depends_on:
       - postgres
 
   postgres:
     image: postgres:10.1-alpine
+    container_name: monar_postgres
     volumes:
       - postgres_data:/var/lib/postgresql/data/
 
