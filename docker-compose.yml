@@ -13,7 +13,10 @@ services:
       - web
 
   web:
-    build: .
+    build:
+      context: .
+      args:
+        requirements: requirements/dev.txt
     container_name: monar_web
     command: python manage.py migrate --noinput
     command: python manage.py runserver 0.0.0.0:8000
@@ -21,6 +24,8 @@ services:
       - .:/project
     expose:
       - "8000"
+    environment:
+      - DJANGO_SETTINGS_MODULE=monar_back.settings.development
     depends_on:
       - postgres
 
