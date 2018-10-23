@@ -10,4 +10,4 @@ before_install:
   - sudo apt-get -y -o Dpkg::Options::="--force-confnew" install docker-ce
 
 script:
-  - docker-compose run -e DJANGO_SETTINGS_MODULE=monar_back.settings.testing --no-deps --rm app py.test
+  - docker-compose run -e DJANGO_SETTINGS_MODULE=monar_back.settings.testing --no-deps --rm web py.test
