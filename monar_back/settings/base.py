@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 from decouple import config
-import dj_database_url
 
 import os
 
@@ -29,7 +28,7 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', cast=bool, default=False)
 
-ALLOWED_HOSTS = ['web']
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -79,15 +78,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'monar_back.wsgi.application'
-
-
-# Database
-# https://docs.djangoproject.com/en/2.1/ref/settings/#databases
-
-DATABASES = {
-    'default': dj_database_url.config(default=config('DB_URL'))
-}
-
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
