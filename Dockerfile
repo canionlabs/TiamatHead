@@ -1,7 +1,7 @@
 FROM python:3.7-alpine
 
 ARG requirements=requirements/prod.txt
-ENV DJANGO_SETTINGS_MODULE=monar_back.settings.production
+ENV DJANGO_SETTINGS_MODULE=tiamat_head.settings.production
 
 ENV PYTHONUNBUFFERED 1
 
