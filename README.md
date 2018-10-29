@@ -2,7 +2,7 @@
 
 A CanionLabs project
 
-[![Build Status](https://travis-ci.org/canionlabs/MONARBack.svg?branch=master)](https://travis-ci.org/canionlabs/MONARBack)
+[![Build Status](https://travis-ci.org/canionlabs/TiamatHead.svg?branch=master)](https://travis-ci.org/canionlabs/TiamatHead)
 
 
 ### Decouple Schema
@@ -14,7 +14,7 @@ A CanionLabs project
 
 ### Run tests
 ```
-docker-compose run -e DJANGO_SETTINGS_MODULE=monar_back.settings.tests --no-deps --rm web py.test
+docker-compose run -e DJANGO_SETTINGS_MODULE=tiamat_head.settings.tests --no-deps --rm web py.test
 ```
 
 ### Run locally
