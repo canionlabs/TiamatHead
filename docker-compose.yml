@@ -3,7 +3,7 @@ version: '2'
 services:
   nginx:
     image: nginx:alpine
-    container_name: monar_nginx
+    container_name: tiamat_nginx
     ports:
       - "8000:8000"
     volumes:
@@ -17,7 +17,7 @@ services:
       context: .
       args:
         requirements: requirements/dev.txt
-    container_name: monar_web
+    container_name: tiamat_web
     command: python manage.py migrate --noinput
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
@@ -25,13 +25,13 @@ services:
     expose:
       - "8000"
     environment:
-      - DJANGO_SETTINGS_MODULE=monar_back.settings.development
+      - DJANGO_SETTINGS_MODULE=tiamat_head.settings.development
     depends_on:
       - postgres
 
   postgres:
     image: postgres:10.1-alpine
-    container_name: monar_postgres
+    container_name: tiamat_postgres
     volumes:
       - postgres_data:/var/lib/postgresql/data/
 
