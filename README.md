@@ -1,8 +1,12 @@
-### Project MESBack
+### Project TiamatHead
+
+[![Build Status](https://travis-ci.org/canionlabs/TiamatHead.svg?branch=master)](https://travis-ci.org/canionlabs/TiamatHead)
 
 A CanionLabs project
 
-[![Build Status](https://travis-ci.org/canionlabs/TiamatHead.svg?branch=master)](https://travis-ci.org/canionlabs/TiamatHead)
+<p align="center">
+<img src="https://i.pinimg.com/originals/44/da/a5/44daa5b97de51186fea3e6ee765919f7.jpg" height="300" width="250" >
+</p>
 
 
 ### Decouple Schema
