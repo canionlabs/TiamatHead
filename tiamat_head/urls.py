@@ -20,5 +20,5 @@ admin.autodiscover()
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('apps.auth_management.urls'))
+    path('', include('apps.auth_management.urls', namespace='auth_management'))
 ]
