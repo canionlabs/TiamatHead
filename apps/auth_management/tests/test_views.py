@@ -19,65 +19,99 @@ UserModel = get_user_model()
 
 class BaseTest(APITestCase):
     def setUp(self):
+        self.test_superuser = UserModel.objects.create_superuser(
+            username='admintest',
+            email='admintest@test.ts', password='admsuper-@pass2s'
+        )
+
         self.test_user = UserModel.objects.create_user(
-            username='test', email='test@test.ts', password='super-@pass2s'
+            username='test',
+            email='test@test.ts', password='super-@pass2s'
         )
 
         self.application = Application(
             name="Test Application",
-            user=self.test_user,
+            user=self.test_superuser,
             client_type=Application.CLIENT_CONFIDENTIAL,
             authorization_grant_type=Application.GRANT_AUTHORIZATION_CODE,
         )
         self.application.save()
 
-        self.valid_token = AccessToken.objects.create(
-            user=self.test_user, token="12345678901",
+        self.valid_admin_token = AccessToken.objects.create(
+            user=self.test_superuser, token="12345678901",
             application=self.application,
             expires=timezone.now() + datetime.timedelta(days=1),
             scope="read write dolphin"
         )
 
-        self.auth_headers = {
-            "HTTP_AUTHORIZATION": "Bearer " + self.valid_token.token,
+        self.valid_user_token = AccessToken.objects.create(
+            user=self.test_user, token="12345678902",
+            application=self.application,
+            expires=timezone.now() + datetime.timedelta(days=1),
+            scope="read write dolphin"
+        )
+
+        self.auth_admin_headers = {
+            "HTTP_AUTHORIZATION": f"Bearer {self.valid_admin_token.token}",
         }
 
-        self.application.save()
+        self.auth_user_headers = {
+            "HTTP_AUTHORIZATION": f"Bearer {self.valid_user_token.token}",
+        }
+
+        self.adm_urls = ['list-users', 'detail-users']
     
     def tearDown(self):
-        self.test_user.delete()
+        self.test_superuser.delete()
 
 
-class TestUserView(BaseTest):
+class TestUserManagementView(BaseTest):
+
+    def test_non_admin_users(self):
+        for adm_url in self.adm_urls:
+            if adm_url.startswith('detail'):
+                response = self.client.get(
+                    reverse(
+                        f'auth_management:{adm_url}', 
+                        kwargs={'pk': self.test_user.id}
+                    ),
+                    **self.auth_user_headers
+                )
+            else:
+                response = self.client.get(
+                    reverse(f'auth_management:{adm_url}'),
+                    **self.auth_user_headers
+                )
+            self.assertEqual(response.status_code, 403)
 
     def test_user_list(self):
         response = self.client.get(
             reverse('auth_management:list-users'),
-            **self.auth_headers
+            **self.auth_admin_headers
         )
 
         self.assertEqual(response.status_code, 200)
         content = response.json()
 
-        self.assertEqual(len(content), 1)
+        self.assertEqual(len(content), UserModel.objects.all().count())
 
     def test_user_detail(self):
         response = self.client.get(
             reverse(
-                'auth_management:detail-users', 
-                kwargs={'pk': self.test_user.id}
+                'auth_management:detail-users',
+                kwargs={'pk': self.test_superuser.id}
             ),
-            **self.auth_headers
+            **self.auth_admin_headers
         )
 
         self.assertEqual(response.status_code, 200)
         content = response.json()
 
         expected_response = {
-            'username': self.test_user.username,
-            'email': self.test_user.email,
-            'first_name': self.test_user.first_name,
-            'last_name': self.test_user.last_name
+            'username': self.test_superuser.username,
+            'email': self.test_superuser.email,
+            'first_name': self.test_superuser.first_name,
+            'last_name': self.test_superuser.last_name
         }
         self.assertDictEqual(content, expected_response)
 
