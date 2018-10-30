@@ -7,20 +7,19 @@ from oauth2_provider.contrib.rest_framework import TokenHasReadWriteScope, Token
 from apps.auth_management.serializers import UserSerializer, GroupSerializer
 
 
-class UserList(generics.ListCreateAPIView):
+class UserListView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAdminUser, TokenHasReadWriteScope]
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
 
-class UserDetails(generics.RetrieveAPIView):
+class UserDetailsView(generics.RetrieveAPIView):
     permission_classes = [permissions.IsAdminUser, TokenHasReadWriteScope]
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
 
-class GroupList(generics.ListAPIView):
-    permission_classes = [permissions.IsAdminUser, TokenHasScope]
-    required_scopes = ['groups']
+class GroupListView(generics.ListAPIView):
+    permission_classes = [permissions.IsAdminUser, TokenHasReadWriteScope]
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
