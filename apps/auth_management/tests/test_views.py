@@ -5,8 +5,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from rest_framework import status
-from rest_framework.test import APITestCase
-from rest_framework.test import APIClient
+from rest_framework.test import APITestCase, APIClient
 from rest_framework.authtoken.models import Token
 
 from oauth2_provider.models import get_access_token_model, get_application_model
