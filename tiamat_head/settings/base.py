@@ -42,7 +42,10 @@ DEFAULT_APPS = [
     'django.contrib.staticfiles',
 ]
 
-LOCAL_APPS = []
+LOCAL_APPS = [
+    'apps.auth_management',
+    'apps.devices'
+]
 
 THIRD_PARTY_APPS = [
     'oauth2_provider',
