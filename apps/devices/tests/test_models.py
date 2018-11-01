@@ -59,4 +59,4 @@ class DeviceModelTest(BaseTest):
         self.assertIsNotNone(self.test_device)
 
     def test_should_assert_methods(self):
-        self.assertEqual(str(self.test_device), self.test_device.name)
+        self.assertEqual(str(self.test_device), str(self.test_device.device_id))
