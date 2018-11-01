@@ -1,5 +1,6 @@
 ### Project TiamatHead
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/a0f66b65b3d8432bb3689c59b1afb02f)](https://app.codacy.com/app/caiovictormc/TiamatHead?utm_source=github.com&utm_medium=referral&utm_content=canionlabs/TiamatHead&utm_campaign=Badge_Grade_Dashboard)
 [![Build Status](https://travis-ci.org/canionlabs/TiamatHead.svg?branch=master)](https://travis-ci.org/canionlabs/TiamatHead)
 
 A CanionLabs project
