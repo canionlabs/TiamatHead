@@ -48,21 +48,13 @@ class BaseTest(APITestCase):
             user=self.test_user
         )
 
-    def tearDown(self):
-        self.test_user.delete()
-        self.test_device.delete()
-        self.valid_user_token.delete()
-
-
-class DeviceViewTest(BaseTest):
-    def test_user_without_devices(self):
-        norelated_user = UserModel.objects.create_user(
+        self.norelated_user = UserModel.objects.create_user(
             username='test-norelated',
             email='test@test.ts', password=str(uuid.uuid4())
         )
 
         self.valid_norelated_user_token = AccessToken.objects.create(
-            user=norelated_user, token=uuid.uuid4().hex,
+            user=self.norelated_user, token=uuid.uuid4().hex,
             application=self.application,
             expires=timezone.now() + datetime.timedelta(days=1),
             scope="read write dolphin"
@@ -72,6 +64,14 @@ class DeviceViewTest(BaseTest):
             "HTTP_AUTHORIZATION": f"Bearer {self.valid_norelated_user_token.token}",
         }
 
+    def tearDown(self):
+        self.test_user.delete()
+        self.test_device.delete()
+        self.valid_user_token.delete()
+
+
+class DeviceViewTest(BaseTest):
+    def test_user_without_devices(self):
         response = self.client.get(
             reverse('devices:list-devices'),
             **self.auth_norelated_user_headers
@@ -155,38 +155,41 @@ class DeviceViewTest(BaseTest):
         content = response.json()
         self.assertEqual(response.data['name'], content['name'])
 
-        norelated_user = UserModel.objects.create_user(
-            username='test-norelated',
-            email='test@test.ts', password=str(uuid.uuid4())
-        )
-
-        valid_norelated_user_token = AccessToken.objects.create(
-            user=norelated_user, token=uuid.uuid4().hex,
-            application=self.application,
-            expires=timezone.now() + datetime.timedelta(days=1),
-            scope="read write dolphin"
-        )
-
-        auth_norelated_user_headers = {
-            "HTTP_AUTHORIZATION": f"Bearer {valid_norelated_user_token.token}",
-        }
-
         response = self.client.patch(
             reverse(
                 'devices:detail-devices',
                 kwargs={'pk': device_id}
             ),
-            **auth_norelated_user_headers,
+            **self.auth_norelated_user_headers,
             data={'name': 'Invalid name'}
         )
 
         self.assertNotEqual(response.status_code, 200)
+    
+    def test_delete_devices(self):
+        test_device = Device.objects.create(
+            user = self.test_user
+        )
+        response = self.client.delete(
+            reverse(
+                'devices:detail-devices',
+                kwargs={'pk': test_device.device_id}
+            ),
+            **self.auth_user_headers,
+        )
+        self.assertEqual(response.status_code, 204)
+    
+    def test_delete_norelated_user(self):
+        test_device = Device.objects.create(
+            user=self.test_user
+        )
+        response = self.client.delete(
+            reverse(
+                'devices:detail-devices',
+                kwargs={'pk': test_device.device_id}
+            ),
+            **self.auth_norelated_user_headers,
+        )
 
-
-
-
-
-
-
-
+        self.assertEqual(response.status_code, 403)
 
