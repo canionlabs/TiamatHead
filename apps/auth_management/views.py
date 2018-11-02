@@ -1,8 +1,7 @@
-from django.shortcuts import render
 from django.contrib.auth.models import User, Group
 
-from rest_framework import generics, permissions, serializers
-from oauth2_provider.contrib.rest_framework import TokenHasReadWriteScope, TokenHasScope
+from rest_framework import generics, permissions
+from oauth2_provider.contrib.rest_framework import TokenHasReadWriteScope
 
 from apps.auth_management.serializers import UserSerializer, GroupSerializer
 
