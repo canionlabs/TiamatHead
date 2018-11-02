@@ -3,14 +3,14 @@ from django.utils import timezone
 from django.urls import reverse
 
 from rest_framework import status
-from rest_framework.test import APITestCase, APIClient
+from rest_framework.test import APITestCase
 
 from oauth2_provider.models import get_access_token_model, get_application_model
-import pytest
 
 from apps.devices.models import Device
 
 import datetime
+import uuid
 
 
 Application = get_application_model()
@@ -22,7 +22,7 @@ class BaseTest(APITestCase):
     def setUp(self):
         self.test_user = UserModel.objects.create_user(
             username='test',
-            email='test@test.ts', password='super-@pass2s'
+            email='test@test.ts', password=str(uuid.uuid4())
         )
 
         self.application = Application(
@@ -34,7 +34,7 @@ class BaseTest(APITestCase):
         self.application.save()
 
         self.valid_user_token = AccessToken.objects.create(
-            user=self.test_user, token="12345678902",
+            user=self.test_user, token=uuid.uuid4().hex,
             application=self.application,
             expires=timezone.now() + datetime.timedelta(days=1),
             scope="read write dolphin"
@@ -59,11 +59,11 @@ class DeviceViewTest(BaseTest):
     def test_user_without_devices(self):
         norelated_user = UserModel.objects.create_user(
             username='test-norelated',
-            email='test@test.ts', password='super-@pass2s'
+            email='test@test.ts', password=str(uuid.uuid4())
         )
 
         self.valid_norelated_user_token = AccessToken.objects.create(
-            user=norelated_user, token="232435345354",
+            user=norelated_user, token=uuid.uuid4().hex,
             application=self.application,
             expires=timezone.now() + datetime.timedelta(days=1),
             scope="read write dolphin"
@@ -147,7 +147,7 @@ class DeviceViewTest(BaseTest):
         content = response.json()
         self.assertNotEqual(data['name'], content['name'])
         self.assertEqual(new_data['name'], content['name'])
-    
+
     def test_update_norelated_user(self):
         data = {
             'name': 'test create device'
@@ -166,11 +166,11 @@ class DeviceViewTest(BaseTest):
 
         norelated_user = UserModel.objects.create_user(
             username='test-norelated',
-            email='test@test.ts', password='super-@pass2s'
+            email='test@test.ts', password=str(uuid.uuid4())
         )
 
         valid_norelated_user_token = AccessToken.objects.create(
-            user=norelated_user, token="232435345354",
+            user=norelated_user, token=uuid.uuid4().hex,
             application=self.application,
             expires=timezone.now() + datetime.timedelta(days=1),
             scope="read write dolphin"

@@ -6,7 +6,7 @@ import uuid
 
 class Device(models.Model):
     device_id = models.UUIDField(
-        primary_key=True, default=uuid.uuid4, 
+        primary_key=True, default=uuid.uuid4,
         editable=False, verbose_name='Device ID'
     )
     name = models.CharField(max_length=75, null=True)
