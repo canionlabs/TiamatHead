@@ -4,14 +4,13 @@ from django.contrib.auth.models import Group
 from django.urls import reverse
 from django.utils import timezone
 
-from rest_framework import status
 from rest_framework.test import APITestCase
-from rest_framework.test import APIClient
 from rest_framework.authtoken.models import Token
 
 from oauth2_provider.models import get_access_token_model, get_application_model
 
 import datetime
+import uuid
 
 
 Application = get_application_model()
@@ -27,12 +26,12 @@ class BaseTest(APITestCase):
 
         self.test_superuser = UserModel.objects.create_superuser(
             username='admintest',
-            email='admintest@test.ts', password='admsuper-@pass2s'
+            email='admintest@test.ts', password=str(uuid.uuid4())
         )
 
         self.test_user = UserModel.objects.create_user(
             username='test',
-            email='test@test.ts', password='super-@pass2s'
+            email='test@test.ts', password=str(uuid.uuid4())
         )
 
         self.application = Application(
@@ -44,14 +43,14 @@ class BaseTest(APITestCase):
         self.application.save()
 
         self.valid_admin_token = AccessToken.objects.create(
-            user=self.test_superuser, token="12345678901",
+            user=self.test_superuser, token=uuid.uuid4().hex,
             application=self.application,
             expires=timezone.now() + datetime.timedelta(days=1),
             scope="read write dolphin"
         )
 
         self.valid_user_token = AccessToken.objects.create(
-            user=self.test_user, token="12345678902",
+            user=self.test_user, token=uuid.uuid4().hex,
             application=self.application,
             expires=timezone.now() + datetime.timedelta(days=1),
             scope="read write dolphin"
