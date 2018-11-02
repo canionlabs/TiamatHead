@@ -178,7 +178,7 @@ class DeviceViewTest(BaseTest):
             **self.auth_user_headers,
         )
         self.assertEqual(response.status_code, 204)
-    
+
     def test_delete_norelated_user(self):
         test_device = Device.objects.create(
             user=self.test_user
@@ -192,4 +192,3 @@ class DeviceViewTest(BaseTest):
         )
 
         self.assertEqual(response.status_code, 403)
-
