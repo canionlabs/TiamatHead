@@ -43,6 +43,7 @@ DEFAULT_APPS = [
 ]
 
 LOCAL_APPS = [
+    'apps.common',
     'apps.auth_management',
     'apps.devices'
 ]
