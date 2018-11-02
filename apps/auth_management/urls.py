@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 
 from apps.auth_management.views import UserListView, \
     UserDetailsView, GroupListView

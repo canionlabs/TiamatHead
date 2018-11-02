@@ -2,7 +2,6 @@ from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.urls import reverse
 
-from rest_framework import status
 from rest_framework.test import APITestCase
 
 from oauth2_provider.models import get_access_token_model, get_application_model
@@ -115,54 +114,46 @@ class DeviceViewTest(BaseTest):
 
     def test_create_and_update_devices(self):
         # POST
-        data = {
-            'name': 'test create device'
-        }
         response = self.client.post(
             reverse('devices:list-devices'),
             **self.auth_user_headers,
-            data=data
+            data={'name': 'test create device'}
         )
         self.assertEqual(response.status_code, 201)
 
         content = response.json()
-        self.assertEqual(data['name'], content['name'])
+        self.assertEqual(
+            response.data['name'], content['name']
+        )
 
         # PATCH
-        new_data = {
-            'name': 'new device'
-        }
-        device_id = content['device_id']
-
+        old_name = response.data['name']
         response = self.client.patch(
             reverse(
                 'devices:detail-devices',
-                kwargs={'pk': device_id}
+                kwargs={'pk': content['device_id']}
             ),
             **self.auth_user_headers,
-            data=new_data
+            data={'name': 'new device'}
         )
         self.assertEqual(response.status_code, 200)
 
         content = response.json()
-        self.assertNotEqual(data['name'], content['name'])
-        self.assertEqual(new_data['name'], content['name'])
+        self.assertNotEqual(old_name, content['name'])
+        self.assertEqual(response.data['name'], content['name'])
 
     def test_update_norelated_user(self):
-        data = {
-            'name': 'test create device'
-        }
         response = self.client.post(
             reverse('devices:list-devices'),
             **self.auth_user_headers,
-            data=data
+            data={'name': 'test create device'}
         )
         self.assertEqual(response.status_code, 201)
         content = response.json()
         device_id = content['device_id']
 
         content = response.json()
-        self.assertEqual(data['name'], content['name'])
+        self.assertEqual(response.data['name'], content['name'])
 
         norelated_user = UserModel.objects.create_user(
             username='test-norelated',
@@ -180,14 +171,13 @@ class DeviceViewTest(BaseTest):
             "HTTP_AUTHORIZATION": f"Bearer {valid_norelated_user_token.token}",
         }
 
-        new_data = {'name': 'Invalid name'}
         response = self.client.patch(
             reverse(
                 'devices:detail-devices',
                 kwargs={'pk': device_id}
             ),
             **auth_norelated_user_headers,
-            data=new_data
+            data={'name': 'Invalid name'}
         )
 
         self.assertNotEqual(response.status_code, 200)
