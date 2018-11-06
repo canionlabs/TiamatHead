@@ -49,9 +49,10 @@ LOCAL_APPS = [
 ]
 
 THIRD_PARTY_APPS = [
+    'corsheaders',
     'oauth2_provider',
     'rest_framework',
-    'corsheaders'
+    'drf_yasg'
 ]
 
 INSTALLED_APPS = (DEFAULT_APPS + LOCAL_APPS + THIRD_PARTY_APPS)
@@ -116,6 +117,21 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
     )
+}
+
+SWAGGER_SETTINGS = {
+    'USE_SESSION_AUTH': False,
+    'SECURITY_DEFINITIONS': {
+        'TiamatAPI-Swagger': {
+            'type': 'oauth2',
+            'authorizationUrl': '/o/authorize',
+            'tokenUrl': '/o/token/',
+            'flow': 'accessCode',
+            'scopes': {
+                'read': 'Read scope', 'write': 'Write scope', 'groups': 'Access to your groups'
+            }
+        }
+    },
 }
 
 # Internationalization
