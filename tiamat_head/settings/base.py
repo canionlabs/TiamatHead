@@ -45,7 +45,8 @@ DEFAULT_APPS = [
 LOCAL_APPS = [
     'apps.common',
     'apps.auth_management',
-    'apps.devices'
+    'apps.devices',
+    'apps.projects'
 ]
 
 THIRD_PARTY_APPS = [
