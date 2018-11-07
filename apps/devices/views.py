@@ -17,6 +17,7 @@ class DeviceListView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
+
 class DeviceDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [
         permissions.IsAuthenticated, TokenHasReadWriteScope, IsOwnerOrReadOnly
