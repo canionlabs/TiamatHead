@@ -7,12 +7,17 @@ from apps.devices.serializers import DeviceSerializer
 
 
 class DeviceListView(generics.ListCreateAPIView):
+    """
+    List devices related with users projects
+    """
     permission_classes = [permissions.IsAuthenticated, TokenHasReadWriteScope]
     serializer_class = DeviceSerializer
 
     def get_queryset(self):
         user = self.request.user
-        return Device.objects.filter(user=user)
+        if user.is_superuser:
+            return Device.objects.all()
+        return Device.objects.filter(project__organization__users=user)
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
