@@ -14,7 +14,7 @@ class Project(DefaultModel):
         verbose_name='Project ID'
     )
     creator = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='projects'
+        User, on_delete=models.CASCADE, related_name='projects_father'
     )
     organization = models.ForeignKey(
         Organization, on_delete=models.CASCADE, related_name='projects'
@@ -23,4 +23,4 @@ class Project(DefaultModel):
     script = JSONField(null=True, blank=True)
 
     def __str__(self):
-        return '{self.id}'
+        return f'{self.id}'
