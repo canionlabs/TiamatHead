@@ -6,7 +6,7 @@ from apps.devices.models import Device
 from apps.devices.serializers import DeviceSerializer
 
 
-class DeviceListView(generics.ListCreateAPIView):
+class DeviceListCreateView(generics.ListCreateAPIView):
     """
     list:
     List related devices

@@ -78,12 +78,12 @@ from apps.common.utils._tests import BaseDefaultTest
 
 class DeviceListTest(BaseDefaultTest):
     """
-    Testing 'devices:list-devices'
+    Testing GET 'devices:list-create-devices'
     """
 
     def test_list_devices(self):
         response = self.client.get(
-            reverse('devices:list-devices'),
+            reverse('devices:list-create-devices'),
             **self.auth_user_headers
         )
         self.assertEqual(response.status_code, 200)
@@ -96,7 +96,7 @@ class DeviceListTest(BaseDefaultTest):
 
     def test_list_devices_filters(self):
         url_reverse = self.custom_reverse(
-            'devices:list-devices',
+            'devices:list-create-devices',
             query_kwargs={'project_id': self.project.id}
         )
         response = self.client.get(url_reverse, **self.auth_user_headers)
@@ -121,7 +121,7 @@ class DeviceListTest(BaseDefaultTest):
         )
 
         url_reverse = self.custom_reverse(
-            'devices:list-devices',
+            'devices:list-create-devices',
             query_kwargs={'project_id': new_project.id}
         )
 
@@ -136,7 +136,7 @@ class DeviceListTest(BaseDefaultTest):
         self.organization.users.remove(self.test_user)
 
         url_reverse = self.custom_reverse(
-            'devices:list-devices',
+            'devices:list-create-devices',
             query_kwargs={'project_id': self.project.id}
         )
         response = self.client.get(url_reverse, **self.auth_user_headers)
@@ -214,7 +214,7 @@ class DeviceRetrieveTest(BaseDefaultTest):
     # def test_create_and_update_devices(self):
     #     # Create
     #     response = self.client.post(
-    #         reverse('devices:list-devices'),
+    #         reverse('devices:list-create-devices'),
     #         **self.auth_user_headers,
     #         data={
     #             'name': 'test create device',
@@ -248,7 +248,7 @@ class DeviceRetrieveTest(BaseDefaultTest):
 
     # def test_update_norelated_user(self):
     #     response = self.client.post(
-    #         reverse('devices:list-devices'),
+    #         reverse('devices:list-create-devices'),
     #         **self.auth_user_headers,
     #         data={'name': 'test create device'}
     #     )
