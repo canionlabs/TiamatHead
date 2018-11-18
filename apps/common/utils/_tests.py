@@ -1,5 +1,7 @@
 from django.contrib.auth import get_user_model
+from django.utils.http import urlencode
 from django.utils import timezone
+from django.urls import reverse
 
 from rest_framework.test import APITestCase
 from oauth2_provider.models import get_access_token_model, get_application_model
@@ -17,7 +19,29 @@ AccessToken = get_access_token_model()
 UserModel = get_user_model()
 
 
-class BaseTest(APITestCase):
+class BaseTest():
+
+    def __init__(self):
+        self.test_user = None
+        self.application = None
+        self.valid_user_token = None
+        self.auth_user_headers = None
+        self.organization = None
+        self.project = None
+        self.test_device = None
+
+    def custom_reverse(self, view_name, kwargs=None, query_kwargs=None):
+        """
+        Create an reverse url using query params
+        """
+        url = reverse(view_name, kwargs=kwargs)
+
+        if query_kwargs:
+            return f'{url}?{urlencode(query_kwargs)}'  
+        return url
+
+
+class BaseDefaultTest(APITestCase, BaseTest):
     def setUp(self):
         self.test_user = UserModel.objects.create_user(
             username='test',
