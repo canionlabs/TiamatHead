@@ -9,4 +9,4 @@ class Organization(DefaultModel):
     users = models.ManyToManyField(User, related_name='organizations')
 
     def __str__(self):
-        return '{self.name}'
+        return f'{self.name}'
