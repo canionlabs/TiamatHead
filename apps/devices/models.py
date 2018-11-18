@@ -19,3 +19,7 @@ class Device(DefaultModel):
 
     def __str__(self):
         return f'{self.id}'
+
+    @property
+    def device_id(self):
+        return self.id

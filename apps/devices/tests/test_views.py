@@ -163,7 +163,7 @@ class DeviceRetrieveTest(BaseDefaultTest):
         )
         self.assertEqual(response.status_code, 200)
 
-        response_device_id = response.json().get('id')
+        response_device_id = response.json().get('device_id')
         self.assertEqual(str(self.test_device.id), response_device_id)
 
     def test_retrieve_non_related_device(self):

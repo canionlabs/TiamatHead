@@ -8,9 +8,9 @@ from apps.auth_management.serializers import UserMinimalSerializer
 
 
 class DeviceSerializer(serializers.ModelSerializer):
-    id = serializers.UUIDField(format="hex_verbose", read_only=True)
+    device_id = serializers.UUIDField(source="id", format="hex_verbose", read_only=True)
     project = ProjectMinimalSerializer()
 
     class Meta:
         model = Device
-        fields = ("id", "name", "project")
+        fields = ("device_id", "name", "project")
