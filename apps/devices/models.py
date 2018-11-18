@@ -13,9 +13,6 @@ class Device(DefaultModel):
         editable=False, verbose_name='Device ID'
     )
     name = models.CharField(max_length=75, null=True)
-    creator = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='devices'
-    )
     project = models.ForeignKey(
         Project, on_delete=models.CASCADE, related_name='devices'
     )
