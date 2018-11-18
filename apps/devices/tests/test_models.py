@@ -1,10 +1,10 @@
-from apps.common.utils._tests import BaseTest
+from apps.common.utils._tests import BaseDefaultTest
 
 import datetime
 import uuid
 
 
-class DeviceModelTest(BaseTest):
+class DeviceModelTest(BaseDefaultTest):
     def test_should_create_device(self):
         self.assertIsNotNone(self.test_device)
 
