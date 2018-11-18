@@ -7,6 +7,8 @@
 # from oauth2_provider.models import get_access_token_model, get_application_model
 
 from apps.devices.models import Device
+from apps.projects.models import Project
+from apps.auth_management.models import Organization
 
 # import datetime
 # import uuid
@@ -71,19 +73,13 @@ from apps.devices.models import Device
 
 from django.urls import reverse
 
-from apps.common.utils._tests import BaseTest
+from apps.common.utils._tests import BaseDefaultTest
 
 
-class DeviceViewTest(BaseTest):
-    # def test_user_without_devices(self):
-    #     response = self.client.get(
-    #         reverse('devices:list-devices'),
-    #         **self.auth_norelated_user_headers
-    #     )
-    #     self.assertEqual(response.status_code, 200)
-
-    #     content = response.json()
-    #     self.assertEqual(len(content), 0)
+class DeviceListTest(BaseDefaultTest):
+    """
+    Testing 'devices:list-devices'
+    """
 
     def test_list_devices(self):
         response = self.client.get(
@@ -97,6 +93,102 @@ class DeviceViewTest(BaseTest):
             project__organization__users=self.test_user
         ).count()
         self.assertEqual(len(content), device_count)
+
+    def test_list_devices_filters(self):
+        url_reverse = self.custom_reverse(
+            'devices:list-devices',
+            query_kwargs={'project_id': self.project.id}
+        )
+        response = self.client.get(url_reverse, **self.auth_user_headers)
+
+        device_count = Device.objects.filter(
+            project__organization__users=self.test_user
+        ).count()
+
+        content = response.json()
+        self.assertEqual(len(content), device_count)
+    
+    def test_list_devices_filter_multiple_projects(self):
+        new_project = Project.objects.create(
+            creator=self.test_user,
+            name='New Test Project',
+            organization=self.organization
+        )
+
+        new_device = Device.objects.create(
+            name='New Test Device',
+            project=self.project
+        )
+
+        url_reverse = self.custom_reverse(
+            'devices:list-devices',
+            query_kwargs={'project_id': new_project.id}
+        )
+
+        response = self.client.get(url_reverse, **self.auth_user_headers)
+        content = response.json()
+
+        self.assertEqual(len(content), 0)
+        new_project.delete()
+        new_device.delete()
+
+    def test_list_devices_filter_errors(self):
+        self.organization.users.remove(self.test_user)
+
+        url_reverse = self.custom_reverse(
+            'devices:list-devices',
+            query_kwargs={'project_id': self.project.id}
+        )
+        response = self.client.get(url_reverse, **self.auth_user_headers)
+
+        content = response.json()
+        self.assertEqual(len(content), 0)
+
+        self.organization.users.add(self.test_user)
+
+
+class DeviceCreateTest(BaseDefaultTest):
+    pass
+
+
+class DeviceRetrieveTest(BaseDefaultTest):
+
+    def test_retrieve_device(self):
+        response = self.client.get(
+            reverse(
+                'devices:detail-devices',
+                kwargs={'pk': self.test_device.id}
+            ),
+            **self.auth_user_headers
+        )
+        self.assertEqual(response.status_code, 200)
+
+        response_device_id = response.json().get('id')
+        self.assertEqual(str(self.test_device.id), response_device_id)
+
+    def test_retrieve_non_related_device(self):
+        new_organization = Organization.objects.create(
+            name='Organization'
+        )
+        new_project = Project.objects.create(
+            creator=self.test_user,
+            name='New Test Project',
+            organization=new_organization
+        )
+        new_device = Device.objects.create(
+            name='New Test Device',
+            project=new_project
+        )
+
+        response = self.client.get(
+            reverse(
+                'devices:detail-devices',
+                kwargs={'pk': new_device.id}
+            ),
+            **self.auth_user_headers
+        )
+
+        self.assertEqual(response.status_code, 403)
 
     # def test_detail_devices(self):
     #     response = self.client.get(
