@@ -24,3 +24,7 @@ class Project(DefaultModel):
 
     def __str__(self):
         return f'{self.id}'
+
+    @property
+    def project_id(self):
+        return self.id
