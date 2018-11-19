@@ -7,7 +7,9 @@
 # from oauth2_provider.models import get_access_token_model, get_application_model
 
 from apps.devices.models import Device
+from apps.devices.serializers import DeviceCreateSerializer
 from apps.projects.models import Project
+from apps.projects.serializers import ProjectMinimalSerializer
 from apps.auth_management.models import Organization
 
 # import datetime
@@ -164,8 +166,43 @@ class DeviceListTest(BaseDefaultTest):
         self.organization.users.add(self.test_user)
 
 
+@pytest.mark.usefixtures('class_devices')
 class DeviceCreateTest(BaseDefaultTest):
-    pass
+    """
+    Testing POST 'devices:list-create-devices'
+    """
+    def test_create_device_with_existent_project(self):
+        """
+        Creating a device using an existing project
+        """
+        to_send = self.serialized_device
+        to_send.update(project=self.project.project_id)
+
+        response = self.client.post(
+            reverse('devices:list-create-devices'),
+            **self.auth_user_headers,
+            data=to_send
+        )
+        self.assertEqual(response.status_code, 201)
+        
+        res = response.json()
+        for field, value in res.items():
+            sent_value = to_send.get(field)
+            if sent_value:
+                self.assertEqual(value, str(sent_value))
+
+    def test_create_device_without_project(self):
+        """
+        Trying force create a device without project
+        """
+        to_send = self.serialized_device
+
+        response = self.client.post(
+            reverse('devices:list-create-devices'),
+            **self.auth_user_headers,
+            data=to_send
+        )
+        self.assertEqual(response.status_code, 400)
 
 
 class DeviceRetrieveTest(BaseDefaultTest):
