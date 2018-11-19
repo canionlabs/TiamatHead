@@ -75,6 +75,23 @@ from django.urls import reverse
 
 from apps.common.utils._tests import BaseDefaultTest
 
+import pytest
+
+import random
+import string
+
+
+@pytest.fixture(scope='class')
+def class_devices(request):
+    serialized_device = {
+        'name': ''.join(
+            [random.choice(string.ascii_letters) for n in range(12)]
+        ),
+        'project': ''
+    }
+
+    request.cls.serialized_device = serialized_device
+
 
 class DeviceListTest(BaseDefaultTest):
     """
