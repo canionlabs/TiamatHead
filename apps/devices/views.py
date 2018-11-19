@@ -3,7 +3,8 @@ from oauth2_provider.contrib.rest_framework import TokenHasReadWriteScope
 
 from apps.devices.permissions import IsOwnerOrReadOnly, IsOrganizationMember
 from apps.devices.models import Device
-from apps.devices.serializers import DeviceSerializer
+from apps.devices.serializers import (
+    DeviceListSerializer, DeviceCreateSerializer)
 
 
 class DeviceListCreateView(generics.ListCreateAPIView):
@@ -15,7 +16,11 @@ class DeviceListCreateView(generics.ListCreateAPIView):
     Create devices for new projects or existing projects related with the user
     """
     permission_classes = [permissions.IsAuthenticated, TokenHasReadWriteScope]
-    serializer_class = DeviceSerializer
+    serializer_class = DeviceCreateSerializer
+
+    def get_read_serializer_class(self):
+        if self.request.method == 'GET':
+            return DeviceListSerializer
 
     def check_params(self):
         formated_params = {}
@@ -43,9 +48,6 @@ class DeviceListCreateView(generics.ListCreateAPIView):
             project__organization__users=user, **params
         )
 
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
-
 
 class DeviceDetailView(generics.RetrieveUpdateDestroyAPIView):
     """
@@ -56,4 +58,4 @@ class DeviceDetailView(generics.RetrieveUpdateDestroyAPIView):
         TokenHasReadWriteScope, IsOrganizationMember
     ]
     queryset = Device.objects.all()
-    serializer_class = DeviceSerializer
+    serializer_class = DeviceListSerializer
