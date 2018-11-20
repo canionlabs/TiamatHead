@@ -244,6 +244,76 @@ class DeviceRetrieveTest(BaseDefaultTest):
 
         self.assertEqual(response.status_code, 403)
 
+
+class DeviceUpdateTest(BaseDefaultTest):
+    """
+    Testing PATCH 'devices:detail-device'
+    """
+    def test_update_device(self):
+        device_name = self.random_string()
+        response = self.client.patch(
+            reverse(
+                'devices:detail-devices', 
+                kwargs={'pk': self.test_device.id},
+            ),
+            data={
+                'name': device_name
+            },
+            **self.auth_user_headers
+        )
+
+        self.assertEqual(200, response.status_code)
+        data = response.json()
+        self.assertEqual(data.get('name'), device_name)
+    
+    def test_update_device_without_credentials(self):
+        response = self.client.patch(
+            reverse(
+                'devices:detail-devices',
+                kwargs={'pk': self.random_string()}
+            )
+        )
+        self.assertEqual(response.status_code, 401)
+
+
+class DeviceDestroyTest(BaseDefaultTest):
+    """
+    Testing DELETE 'devices:detail-device'
+    """
+    def test_delete_device(self):
+        response = self.client.delete(
+            reverse(
+                'devices:detail-devices',
+                kwargs={'pk': self.test_device.id}
+            ),
+            **self.auth_user_headers
+        )
+
+        self.assertEqual(response.status_code, 204)
+    
+    def test_delete_device_without_permission(self):
+        secondary_org = Organization.objects.create(
+            name=self.random_string()
+        )
+
+        secondary_project = Project.objects.create(
+            name=self.random_string(),
+            organization=secondary_org,
+            creator=self.test_user
+        )
+
+        self.test_device.project = secondary_project
+        self.test_device.save()
+
+        response = self.client.delete(
+            reverse(
+                'devices:detail-devices',
+                kwargs={'pk': self.test_device.id}
+            ),
+            **self.auth_user_headers
+        )
+        self.assertEqual(response.status_code, 403)
+
     # def test_detail_devices(self):
     #     response = self.client.get(
     #         reverse(
