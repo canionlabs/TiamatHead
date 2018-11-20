@@ -11,6 +11,8 @@ from apps.projects.models import Project
 from apps.auth_management.models import Organization
 
 import uuid
+import random
+import string
 import datetime
 
 
@@ -39,6 +41,11 @@ class BaseTest():
         if query_kwargs:
             return f'{url}?{urlencode(query_kwargs)}'  
         return url
+    
+    def random_string(self):
+        return ''.join(
+            [random.choice(string.ascii_letters) for n in range(12)]
+        )
 
 
 class BaseDefaultTest(APITestCase, BaseTest):
