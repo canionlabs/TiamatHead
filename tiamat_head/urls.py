@@ -38,5 +38,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('docs/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     path('', include('apps.auth_management.urls', namespace='auth_management')),
-    path('', include('apps.devices.urls', namespace='devices'))
+    path('', include('apps.devices.urls', namespace='devices')),
+    path('', include('apps.projects.urls', namespace='projects'))
 ]
