@@ -88,6 +88,7 @@ class BaseDefaultTest(APITestCase, BaseTest):
             name='Test Project',
             organization=self.organization
         )
+        self.project.members.add(self.test_user)
 
         self.test_device = Device.objects.create(
             name='Test Device',
