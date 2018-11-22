@@ -24,13 +24,7 @@ UserModel = get_user_model()
 class BaseTest():
 
     def __init__(self):
-        self.test_user = None
-        self.application = None
-        self.valid_user_token = None
-        self.auth_user_headers = None
-        self.organization = None
-        self.project = None
-        self.test_device = None
+        pass
 
     def custom_reverse(self, view_name, kwargs=None, query_kwargs=None):
         """
@@ -51,9 +45,13 @@ class BaseTest():
         return (
             f'{self.random_string}@{self.random_string}.{self.random_string}'
         )
+    
+    def uuid4(self):
+        return uuid.uuid4()
 
 
 class BaseDefaultTest(APITestCase, BaseTest):
+
     def setUp(self):
         self.test_user = UserModel.objects.create_user(
             username='test',
@@ -74,7 +72,6 @@ class BaseDefaultTest(APITestCase, BaseTest):
             expires=timezone.now() + datetime.timedelta(days=1),
             scope="read write dolphin"
         )
-
         self.auth_user_headers = {
             "HTTP_AUTHORIZATION": f"Bearer {self.valid_user_token.token}",
         }
