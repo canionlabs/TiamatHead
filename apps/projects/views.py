@@ -16,4 +16,10 @@ class ProjectListCreateView(generics.ListCreateAPIView):
     """
     permission_classes = [permissions.IsAuthenticated, TokenHasReadWriteScope]
     serializer_class = ProjectSerializer
-    queryset = Project.objects.all()
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_superuser:
+            return Project.objects.all()
+
+        return user.projects.all()
