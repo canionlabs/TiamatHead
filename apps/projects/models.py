@@ -13,12 +13,10 @@ class Project(DefaultModel):
         primary_key=True, default=uuid.uuid4, editable=False,
         verbose_name='Project ID'
     )
-    creator = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='projects_father'
-    )
     organization = models.ForeignKey(
         Organization, on_delete=models.CASCADE, related_name='projects'
     )
+    members = models.ManyToManyField(User, related_name='projects')
     name = models.CharField(max_length=175)
     script = JSONField(null=True, blank=True)
 
