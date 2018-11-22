@@ -6,7 +6,7 @@ from apps.projects.models import Project
 class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
-        fields = ("id", "creator", "organization", "name", "script")
+        fields = ("id", "organization", "name", "script")
 
 
 class ProjectMinimalSerializer(serializers.ModelSerializer):
