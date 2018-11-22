@@ -57,7 +57,6 @@ class DeviceListTest(BaseDefaultTest):
     
     def test_list_devices_filter_multiple_projects(self):
         new_project = Project.objects.create(
-            creator=self.test_user,
             name='New Test Project',
             organization=self.organization
         )
@@ -155,7 +154,6 @@ class DeviceRetrieveTest(BaseDefaultTest):
             name='Organization'
         )
         new_project = Project.objects.create(
-            creator=self.test_user,
             name='New Test Project',
             organization=new_organization
         )
@@ -228,8 +226,7 @@ class DeviceDestroyTest(BaseDefaultTest):
 
         secondary_project = Project.objects.create(
             name=self.random_string(),
-            organization=secondary_org,
-            creator=self.test_user
+            organization=secondary_org
         )
 
         self.test_device.project = secondary_project
