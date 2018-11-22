@@ -46,6 +46,11 @@ class BaseTest():
         return ''.join(
             [random.choice(string.ascii_letters) for n in range(12)]
         )
+    
+    def random_email(self):
+        return (
+            f'{self.random_string}@{self.random_string}.{self.random_string}'
+        )
 
 
 class BaseDefaultTest(APITestCase, BaseTest):
@@ -80,7 +85,6 @@ class BaseDefaultTest(APITestCase, BaseTest):
         self.organization.users.add(self.test_user)
 
         self.project = Project.objects.create(
-            creator=self.test_user,
             name='Test Project',
             organization=self.organization
         )
