@@ -51,9 +51,10 @@ LOCAL_APPS = [
 
 THIRD_PARTY_APPS = [
     'corsheaders',
+    'drf_yasg',
+    'django_filters',
     'oauth2_provider',
-    'rest_framework',
-    'drf_yasg'
+    'rest_framework'
 ]
 
 INSTALLED_APPS = (DEFAULT_APPS + LOCAL_APPS + THIRD_PARTY_APPS)
@@ -117,7 +118,10 @@ OAUTH2_PROVIDER = {
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
-    )
+    ),
+    'DEFAULT_FILTER_BACKENDS': (
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ),
 }
 
 SWAGGER_SETTINGS = {
