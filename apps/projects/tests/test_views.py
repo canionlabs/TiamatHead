@@ -64,17 +64,12 @@ class ProjectListTest(BaseDefaultTest):
         self.assertEqual(response.json(), [])
 
     def test_list_filtering_projects(self):
-        pass
-        # url_reverse = self.custom_reverse(
-        #     'projects:list-create-projects',
-        #     query_kwargs={'project_id': self.project.id}
-        # )
-        # response = self.client.get(url_reverse, **self.auth_user_headers)
+        url_reverse = self.custom_reverse(
+            'projects:list-create-projects',
+            query_kwargs={'project_id': self.new_project.id}
+        )
+        response = self.client.get(url_reverse, **self.auth_user_headers)
 
-        # projects_count = Project.objects.filter(id=self.project.id).count()
-        # data = response.json()
-
-        # self.assertEqual(projects_count, len(data))
-
-
-# url_reverse = self.custom_reverse('projects:list-create-projects',query_kwargs={'project_id': self.project.id})
+        projects_count = Project.objects.filter(id=self.new_project.id).count()
+        data = response.json()
+        self.assertEqual(projects_count, len(data))
