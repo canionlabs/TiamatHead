@@ -73,3 +73,66 @@ class ProjectListTest(BaseDefaultTest):
         projects_count = Project.objects.filter(id=self.new_project.id).count()
         data = response.json()
         self.assertEqual(projects_count, len(data))
+
+
+@pytest.mark.usefixtures('class_projects')
+class ProjectCreateTest(BaseDefaultTest):
+    """
+    Testing POST 'projects:list-create-projects'
+    """
+    def setUp(self):
+        super(ProjectCreateTest, self).setUp()
+
+        # user without organization
+        self.norg_user = UserModel.objects.create_user(
+            username=self.random_string(),
+            email=self.random_email(), password=self.uuid4()
+        )
+        self.norg_user_token = AccessToken.objects.create(
+            user=self.norg_user, token=str(self.uuid4()),
+            application=self.application,
+            expires=timezone.now() + datetime.timedelta(days=1),
+            scope="read write dolphin"
+        )
+        self.norg_user_headers = {
+            "HTTP_AUTHORIZATION": f"Bearer {self.norg_user_token.token}",
+        }
+
+    def test_create_project(self):
+        to_send = self.serialized_project
+        to_send.update(organization_id=str(self.organization.id))
+
+        response = self.client.post(
+            reverse('projects:list-create-projects'),
+            **self.auth_user_headers,
+            data=to_send
+        )
+
+        self.assertEqual(status.HTTP_201_CREATED, response.status_code)
+        res = response.json()
+        for field, value in res.items():
+            sent_value = to_send.get(field)
+            if sent_value:
+                self.assertEqual(value, str(sent_value))
+
+    def test_create_project_with_invalid_organization(self):
+        to_send = self.serialized_project
+        to_send.update(organization_id=str(self.uuid4()))
+
+        response = self.client.post(
+            reverse('projects:list-create-projects'),
+            **self.auth_user_headers,
+            data=to_send
+        )
+        self.assertEqual(status.HTTP_400_BAD_REQUEST, response.status_code)
+
+    def test_create_project_with_no_related_user(self):
+        to_send = self.serialized_project
+        to_send.update(organization_id=str(self.uuid4()))
+
+        response = self.client.post(
+            reverse('projects:list-create-projects'),
+            **self.auth_user_headers,
+            data=to_send
+        )
+        self.assertEqual(status.HTTP_400_BAD_REQUEST, response.status_code)
