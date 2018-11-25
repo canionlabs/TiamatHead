@@ -5,11 +5,20 @@ from oauth2_provider.contrib.rest_framework import TokenHasReadWriteScope
 
 from apps.projects.filters import ProjectFilter
 from apps.projects.models import Project
-from apps.projects.serializers import ProjectListSerializer, \
-    ProjectCreateSerializer
+from apps.projects.serializers import ProjectSerializer
 
 
-class ProjectListCreateView(generics.ListCreateAPIView):
+class MixinProjectView(object):
+    permission_classes = [permissions.IsAuthenticated, TokenHasReadWriteScope]
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_superuser:
+            return Project.objects.all()
+        return user.projects.all()
+
+
+class ProjectListCreateView(MixinProjectView, generics.ListCreateAPIView):
     """
     list:
     List related projects.
@@ -19,15 +28,15 @@ class ProjectListCreateView(generics.ListCreateAPIView):
     """
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = ProjectFilter
-    permission_classes = [permissions.IsAuthenticated, TokenHasReadWriteScope]
-    serializer_class = ProjectCreateSerializer
+    serializer_class = ProjectSerializer
 
-    def get_read_serializer_class(self):
-        if self.request.method == 'GET':
-            return ProjectListSerializer
+    # def get_read_serializer_class(self):
+    #     if self.request.method == 'GET':
+    #         return ProjectListSerializer
 
-    def get_queryset(self):
-        user = self.request.user
-        if user.is_superuser:
-            return Project.objects.all()
-        return user.projects.all()
+
+class ProjectDetailView(MixinProjectView, generics.RetrieveUpdateDestroyAPIView):
+    """
+    Retrieve projects
+    """
+    serializer_class = ProjectSerializer
