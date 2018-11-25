@@ -1,15 +1,17 @@
+from django.urls import reverse
+from django.utils import timezone
+from rest_framework import status
+
+from apps.auth_management.models import Organization
+from apps.common.utils._tests import BaseDefaultTest, UserModel, AccessToken
 from apps.devices.models import Device
 from apps.projects.models import Project
-from apps.auth_management.models import Organization
-
-from django.urls import reverse
-
-from apps.common.utils._tests import BaseDefaultTest
 
 import pytest
 
 import random
 import string
+import datetime
 
 
 @pytest.fixture(scope='class')
@@ -28,6 +30,38 @@ class DeviceListTest(BaseDefaultTest):
     """
     Testing GET 'devices:list-create-devices'
     """
+    def setUp(self):
+        super(DeviceListTest, self).setUp()
+        self.new_project = Project.objects.create(
+            name=self.random_string(),
+            organization=self.organization
+        )
+        self.new_device = Device.objects.create(
+            name=self.random_string(),
+            project=self.project
+        )
+
+        # user without organization
+        self.norg_user = UserModel.objects.create_user(
+            username=self.random_string(),
+            email=self.random_email(), password=self.uuid4()
+        )
+        self.norg_user_token = AccessToken.objects.create(
+            user=self.norg_user, token=str(self.uuid4()),
+            application=self.application,
+            expires=timezone.now() + datetime.timedelta(days=1),
+            scope="read write dolphin"
+        )
+        self.norg_user_headers = {
+            "HTTP_AUTHORIZATION": f"Bearer {self.norg_user_token.token}",
+        }
+
+    def tearDown(self):
+        self.new_project.delete()
+        self.new_device.delete()
+        self.norg_user.delete()
+        self.norg_user_token.delete()
+
     def test_list_devices(self):
         response = self.client.get(
             reverse('devices:list-create-devices'),
@@ -41,7 +75,7 @@ class DeviceListTest(BaseDefaultTest):
         ).count()
         self.assertEqual(len(content), device_count)
 
-    def test_list_devices_filters(self):
+    def test_list_devices_filter_project_id(self):
         url_reverse = self.custom_reverse(
             'devices:list-create-devices',
             query_kwargs={'project_id': self.project.id}
@@ -55,42 +89,20 @@ class DeviceListTest(BaseDefaultTest):
         content = response.json()
         self.assertEqual(len(content), device_count)
     
-    def test_list_devices_filter_multiple_projects(self):
-        new_project = Project.objects.create(
-            name='New Test Project',
-            organization=self.organization
-        )
-
-        new_device = Device.objects.create(
-            name='New Test Device',
-            project=self.project
-        )
-
+    def test_list_devices_filter_device_id(self):
         url_reverse = self.custom_reverse(
             'devices:list-create-devices',
-            query_kwargs={'project_id': new_project.id}
-        )
-
-        response = self.client.get(url_reverse, **self.auth_user_headers)
-        content = response.json()
-
-        self.assertEqual(len(content), 0)
-        new_project.delete()
-        new_device.delete()
-
-    def test_list_devices_filter_errors(self):
-        self.organization.users.remove(self.test_user)
-
-        url_reverse = self.custom_reverse(
-            'devices:list-create-devices',
-            query_kwargs={'project_id': self.project.id}
+            query_kwargs={'device_id': self.test_device.id}
         )
         response = self.client.get(url_reverse, **self.auth_user_headers)
 
-        content = response.json()
-        self.assertEqual(len(content), 0)
+        device_count = Device.objects.filter(
+            project__organization__users=self.test_user,
+            id=self.test_device.id
+        ).count()
 
-        self.organization.users.add(self.test_user)
+        content = response.json()
+        self.assertEqual(len(content), device_count)
 
 
 @pytest.mark.usefixtures('class_devices')
