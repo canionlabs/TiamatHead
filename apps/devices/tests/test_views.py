@@ -123,7 +123,6 @@ class DeviceCreateTest(BaseDefaultTest):
             data=to_send
         )
         self.assertEqual(response.status_code, 201)
-        
         res = response.json()
         for field, value in res.items():
             sent_value = to_send.get(field)
@@ -135,7 +134,6 @@ class DeviceCreateTest(BaseDefaultTest):
         Trying force create a device without project
         """
         to_send = self.serialized_device
-
         response = self.client.post(
             reverse('devices:list-create-devices'),
             **self.auth_user_headers,
@@ -148,6 +146,25 @@ class DeviceRetrieveTest(BaseDefaultTest):
     """
     Testing GET 'devices:detail-device'
     """
+    def setUp(self):
+        super(DeviceRetrieveTest, self).setUp()
+        self.new_organization = Organization.objects.create(
+            name=self.random_string()
+        )
+        self.new_project = Project.objects.create(
+            name=self.random_string(),
+            organization=self.new_organization
+        )
+        self.new_device = Device.objects.create(
+            name=self.random_string(),
+            project=self.new_project
+        )
+
+    def tearDown(self):
+        self.new_organization.delete()
+        self.new_project.delete()
+        self.new_device.delete()
+
     def test_retrieve_device(self):
         response = self.client.get(
             reverse(
@@ -162,26 +179,13 @@ class DeviceRetrieveTest(BaseDefaultTest):
         self.assertEqual(str(self.test_device.id), response_device_id)
 
     def test_retrieve_non_related_device(self):
-        new_organization = Organization.objects.create(
-            name='Organization'
-        )
-        new_project = Project.objects.create(
-            name='New Test Project',
-            organization=new_organization
-        )
-        new_device = Device.objects.create(
-            name='New Test Device',
-            project=new_project
-        )
-
         response = self.client.get(
             reverse(
                 'devices:detail-devices',
-                kwargs={'pk': new_device.id}
+                kwargs={'pk': self.new_device.id}
             ),
             **self.auth_user_headers
         )
-
         self.assertEqual(response.status_code, 403)
 
 
@@ -220,6 +224,25 @@ class DeviceDestroyTest(BaseDefaultTest):
     """
     Testing DELETE 'devices:detail-device'
     """
+    def setUp(self):
+        super(DeviceDestroyTest, self).setUp()
+        self.new_organization = Organization.objects.create(
+            name=self.random_string()
+        )
+        self.new_project = Project.objects.create(
+            name=self.random_string(),
+            organization=self.new_organization
+        )
+        self.new_device = Device.objects.create(
+            name=self.random_string(),
+            project=self.new_project
+        )
+
+    def tearDown(self):
+        self.new_organization.delete()
+        self.new_project.delete()
+        self.new_device.delete()
+
     def test_delete_device(self):
         response = self.client.delete(
             reverse(
@@ -232,22 +255,10 @@ class DeviceDestroyTest(BaseDefaultTest):
         self.assertEqual(response.status_code, 204)
     
     def test_delete_device_without_permission(self):
-        secondary_org = Organization.objects.create(
-            name=self.random_string()
-        )
-
-        secondary_project = Project.objects.create(
-            name=self.random_string(),
-            organization=secondary_org
-        )
-
-        self.test_device.project = secondary_project
-        self.test_device.save()
-
         response = self.client.delete(
             reverse(
                 'devices:detail-devices',
-                kwargs={'pk': self.test_device.id}
+                kwargs={'pk': self.new_device.id}
             ),
             **self.auth_user_headers
         )

@@ -25,5 +25,4 @@ class ProjectListCreateView(generics.ListCreateAPIView):
         user = self.request.user
         if user.is_superuser:
             return Project.objects.all()
-
         return user.projects.all()
