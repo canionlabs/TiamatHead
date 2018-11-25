@@ -3,9 +3,10 @@ from rest_framework import generics, permissions
 from django_filters import rest_framework as filters
 from oauth2_provider.contrib.rest_framework import TokenHasReadWriteScope
 
-from apps.projects.serializers import ProjectSerializer
 from apps.projects.filters import ProjectFilter
 from apps.projects.models import Project
+from apps.projects.serializers import ProjectListSerializer, \
+    ProjectCreateSerializer
 
 
 class ProjectListCreateView(generics.ListCreateAPIView):
@@ -19,7 +20,11 @@ class ProjectListCreateView(generics.ListCreateAPIView):
     filter_backends = (filters.DjangoFilterBackend,)
     filterset_class = ProjectFilter
     permission_classes = [permissions.IsAuthenticated, TokenHasReadWriteScope]
-    serializer_class = ProjectSerializer
+    serializer_class = ProjectCreateSerializer
+
+    def get_read_serializer_class(self):
+        if self.request.method == 'GET':
+            return ProjectListSerializer
 
     def get_queryset(self):
         user = self.request.user
