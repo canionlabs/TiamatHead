@@ -1,12 +1,8 @@
 from rest_framework.test import APITestCase
 
-from rest_framework import status
-
 from apps.common.utils._tests import BaseTest, UserModel
 from apps.projects.models import Project
 from apps.auth_management.models import Organization
-
-import uuid
 
 
 class ProjectModelTest(APITestCase, BaseTest):
@@ -25,7 +21,7 @@ class ProjectModelTest(APITestCase, BaseTest):
 
         self.test_user = UserModel.objects.create_user(
             username=self.random_string(),
-            email=self.random_email(), password=str(uuid.uuid4())
+            email=self.random_email(), password=self.uuid4()
         )
 
     def tearDown(self):

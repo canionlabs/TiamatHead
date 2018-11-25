@@ -23,31 +23,36 @@ UserModel = get_user_model()
 
 class BaseTest():
 
-    def __init__(self):
-        pass
-
-    def custom_reverse(self, view_name, kwargs=None, query_kwargs=None):
+    @staticmethod
+    def custom_reverse(view_name, kwargs=None, query_kwargs=None):
         """
         Create an reverse url using query params
         """
         url = reverse(view_name, kwargs=kwargs)
-
         if query_kwargs:
-            return f'{url}?{urlencode(query_kwargs)}'  
+            return f'{url}?{urlencode(query_kwargs)}'
         return url
-    
-    def random_string(self):
+
+    @staticmethod
+    def _generate_string():
         return ''.join(
             [random.choice(string.ascii_letters) for n in range(12)]
         )
-    
+
+    @staticmethod
+    def _generate_uuid4():
+        return uuid.uuid4()
+
+    def random_string(self):
+        return self._generate_string()
+
     def random_email(self):
         return (
-            f'{self.random_string}@{self.random_string}.{self.random_string}'
+            f'{self._generate_string}@{self._generate_string}.{self._generate_string}'
         )
-    
+
     def uuid4(self):
-        return uuid.uuid4()
+        return self._generate_uuid4()
 
 
 class BaseDefaultTest(APITestCase, BaseTest):

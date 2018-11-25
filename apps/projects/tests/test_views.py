@@ -183,7 +183,7 @@ class ProjectRetrieveTest(BaseDefaultTest):
             **self.auth_user_headers
         )
         self.assertEqual(status.HTTP_404_NOT_FOUND, response.status_code)
-    
+
 
 class ProjectUpdateTest(BaseDefaultTest):
     """

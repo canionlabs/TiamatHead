@@ -1,6 +1,5 @@
 from django.urls import reverse
 from django.utils import timezone
-from rest_framework import status
 
 from apps.auth_management.models import Organization
 from apps.common.utils._tests import BaseDefaultTest, UserModel, AccessToken
@@ -17,9 +16,7 @@ import datetime
 @pytest.fixture(scope='class')
 def class_devices(request):
     serialized_device = {
-        'name': ''.join(
-            [random.choice(string.ascii_letters) for n in range(12)]
-        ),
+        'name': '',
         'project': ''
     }
 
@@ -115,6 +112,7 @@ class DeviceCreateTest(BaseDefaultTest):
         Creating a device using an existing project
         """
         to_send = self.serialized_device
+        to_send.update({'name': self.random_string()})
         to_send.update(project=self.project.project_id)
 
         response = self.client.post(
@@ -134,6 +132,7 @@ class DeviceCreateTest(BaseDefaultTest):
         Trying force create a device without project
         """
         to_send = self.serialized_device
+        to_send.update({'name': self.random_string()})
         response = self.client.post(
             reverse('devices:list-create-devices'),
             **self.auth_user_headers,

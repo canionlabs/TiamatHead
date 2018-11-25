@@ -9,7 +9,7 @@ class ProjectFilter(filters.FilterSet):
     class Meta:
         model = Project
         fields = ('project_id', 'name')
-    
+
     def filter_project_id(self, queryset, name, value):
         if value:
             queryset = queryset.filter(id=value)

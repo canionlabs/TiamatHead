@@ -3,7 +3,7 @@ from rest_framework import generics, permissions
 from oauth2_provider.contrib.rest_framework import TokenHasReadWriteScope
 from django_filters import rest_framework as filters
 
-from apps.devices.permissions import IsOwnerOrReadOnly, IsOrganizationMember
+from apps.devices.permissions import IsOrganizationMember
 from apps.devices.filters import DeviceFilter
 from apps.devices.models import Device
 from apps.devices.serializers import (
@@ -39,7 +39,7 @@ class DeviceDetailView(generics.RetrieveUpdateDestroyAPIView):
     Retrieve devices related with users organization
     """
     permission_classes = [
-        permissions.IsAuthenticated, 
+        permissions.IsAuthenticated,
         TokenHasReadWriteScope, IsOrganizationMember
     ]
     queryset = Device.objects.all()
