@@ -4,23 +4,20 @@ from apps.projects.models import Project
 from apps.auth_management.models import Organization
 
 
-class ProjectListSerializer(serializers.ModelSerializer):
-    project_id = serializers.UUIDField()
-
-    class Meta:
-        model = Project
-        fields = ("project_id", "organization", "name", "script")
-
-    def get_project_id(self, obj):
-        return obj.id
-
-
-class ProjectCreateSerializer(serializers.ModelSerializer):
+class ProjectSerializer(serializers.ModelSerializer):
+    project_id = serializers.UUIDField(read_only=True)
     organization_id = serializers.UUIDField()
 
     class Meta:
         model = Project
-        fields = ("organization_id", "name", "script")
+        fields = ("project_id", "organization_id", "name", "script")
+        read_only_fields = ("project_id",)
+
+    def get_project_id(self, obj):
+        return obj.id
+
+    def get_organization_id(self, obj):
+        return obj.organization.id
 
     def validate_organization_id(self, value):
         org_query = Organization.objects.filter(id=value)
