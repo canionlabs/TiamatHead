@@ -1,22 +1,27 @@
 from rest_framework import serializers
 
 from apps.devices.models import Device
-from django.contrib.auth.models import User
+from apps.projects.serializers import ProjectMinimalSerializer
 
 
-class UserMinimalSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ("username", "id")
-
-
-class DeviceSerializer(serializers.ModelSerializer):
-    user = serializers.SerializerMethodField()
-    device_id = serializers.UUIDField(format="hex_verbose", read_only=True)
+class DeviceListSerializer(serializers.ModelSerializer):
+    device_id = serializers.UUIDField(source="id", format="hex_verbose", read_only=True)
+    project = ProjectMinimalSerializer()
 
     class Meta:
         model = Device
-        fields = ("name", "user", "device_id")
+        fields = ("device_id", "name", "project")
 
-    def get_user(self, obj):
-        return UserMinimalSerializer(obj.user).data
+
+class DeviceCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Device
+        fields = ("device_id", "name", "project")
+
+    def create(self, validated_data):
+        project = validated_data.pop('project')
+        instance = Device.objects.create(project=project, **validated_data)
+        if project:
+            instance.project = project
+
+        return instance
