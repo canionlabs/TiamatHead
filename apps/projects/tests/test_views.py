@@ -5,6 +5,8 @@ from rest_framework import status
 
 from apps.common.utils._tests import BaseDefaultTest, UserModel, AccessToken
 from apps.projects.models import Project
+from apps.auth_management.models import Organization
+from apps.projects.serializers import ProjectSerializer
 
 import pytest
 import datetime
@@ -98,6 +100,10 @@ class ProjectCreateTest(BaseDefaultTest):
             "HTTP_AUTHORIZATION": f"Bearer {self.norg_user_token.token}",
         }
 
+    def tearDown(self):
+        self.norg_user.delete()
+        self.norg_user_token.delete()
+
     def test_create_project(self):
         to_send = self.serialized_project
         to_send.update(organization_id=str(self.organization.id))
@@ -136,3 +142,123 @@ class ProjectCreateTest(BaseDefaultTest):
             data=to_send
         )
         self.assertEqual(status.HTTP_400_BAD_REQUEST, response.status_code)
+
+
+@pytest.mark.usefixtures('class_projects')
+class ProjectRetrieveTest(BaseDefaultTest):
+    """
+    Testing GET 'projects:detail-project'
+    """
+    def setUp(self):
+        super(ProjectRetrieveTest, self).setUp()
+        self.serialized_project.update({'organization': self.organization})
+        self.new_project = Project.objects.create(**self.serialized_project)
+
+    def tearDown(self):
+        self.new_project.delete()
+
+    def test_retrieve_project(self):
+        response = self.client.get(
+            reverse(
+                'projects:detail-projects',
+                kwargs={'pk': self.project.project_id}
+            ),
+            **self.auth_user_headers
+        )
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+
+        content = response.json()
+        serialize_project = ProjectSerializer(instance=self.project).data
+
+        self.assertDictEqual(serialize_project, content)
+        for content_key, content_value in content.items():
+            self.assertEqual(serialize_project.get(content_key), content_value)
+
+    def test_retrive_no_related_project(self):
+        response = self.client.get(
+            reverse(
+                'projects:detail-projects',
+                kwargs={'pk': self.new_project.project_id}
+            ),
+            **self.auth_user_headers
+        )
+        self.assertEqual(status.HTTP_404_NOT_FOUND, response.status_code)
+    
+
+class ProjectUpdateTest(BaseDefaultTest):
+    """
+    Testing PATCH 'projects:detail-projects'
+    """
+    def test_update_name_project(self):
+        to_send = {'name': self.random_string()}
+
+        response = self.client.patch(
+            reverse(
+                'projects:detail-projects',
+                kwargs={'pk': self.project.project_id}
+            ),
+            data=to_send,
+            **self.auth_user_headers
+        )
+
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+        content = response.json()
+        for sent_key, sent_value in to_send.items():
+            self.assertEqual(content.get(sent_key), sent_value)
+    
+    def test_update_project_id_read_only(self):
+        to_send = {'project_id': self.uuid4()}
+
+        response = self.client.patch(
+            reverse(
+                'projects:detail-projects',
+                kwargs={'pk': self.project.project_id}
+            ),
+            data=to_send,
+            **self.auth_user_headers
+        )
+
+        self.assertEqual(status.HTTP_200_OK, response.status_code)
+        content = response.json()
+
+        for sent_key, sent_value in to_send.items():
+            self.assertNotEqual(content.get(sent_key), sent_value)
+
+
+class ProjectDestroyTest(BaseDefaultTest):
+    """
+    Testing DELETE 'projects:detail-projects'
+    """
+    def setUp(self):
+        super(ProjectDestroyTest, self).setUp()
+        self.new_organization = Organization.objects.create(
+            name=self.random_string()
+        )
+        self.new_project = Project.objects.create(
+            name=self.random_string(),
+            organization=self.new_organization
+        )
+
+    def tearDown(self):
+        self.new_organization.delete()
+        self.new_project.delete()
+
+    def test_delete_project(self):
+        response = self.client.delete(
+            reverse(
+                'projects:detail-projects',
+                kwargs={'pk': self.project.project_id}
+            ),
+            **self.auth_user_headers
+        )
+        self.assertEqual(status.HTTP_204_NO_CONTENT, response.status_code)
+
+    def test_delete_project_with_permission(self):
+        response = self.client.delete(
+            reverse(
+                'projects:detail-projects',
+                kwargs={'pk': self.new_project.project_id}
+            ),
+            **self.auth_user_headers
+        )
+        self.assertEqual(status.HTTP_404_NOT_FOUND, response.status_code)
