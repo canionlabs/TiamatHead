@@ -1,25 +1,46 @@
 from rest_framework import generics, permissions
+
 from oauth2_provider.contrib.rest_framework import TokenHasReadWriteScope
+from django_filters import rest_framework as filters
 
-from apps.devices.permissions import IsOwnerOrReadOnly
+from apps.devices.permissions import IsOrganizationMember
+from apps.devices.filters import DeviceFilter
 from apps.devices.models import Device
-from apps.devices.serializers import DeviceSerializer
+from apps.devices.serializers import (
+    DeviceListSerializer, DeviceCreateSerializer)
 
 
-class DeviceListView(generics.ListCreateAPIView):
+class DeviceListCreateView(generics.ListCreateAPIView):
+    """
+    list:
+    List related devices
+
+    create:
+    Create devices for new projects or existing projects related with the user
+    """
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = DeviceFilter
     permission_classes = [permissions.IsAuthenticated, TokenHasReadWriteScope]
-    serializer_class = DeviceSerializer
+    serializer_class = DeviceCreateSerializer
+
+    def get_read_serializer_class(self):
+        if self.request.method == 'GET':
+            return DeviceListSerializer
 
     def get_queryset(self):
         user = self.request.user
-        return Device.objects.filter(user=user)
+        if user.is_superuser:
+            return Device.objects.all()
+        return Device.objects.filter(project__organization__users=user)
 
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
 
 class DeviceDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """
+    Retrieve devices related with users organization
+    """
     permission_classes = [
-        permissions.IsAuthenticated, TokenHasReadWriteScope, IsOwnerOrReadOnly
+        permissions.IsAuthenticated,
+        TokenHasReadWriteScope, IsOrganizationMember
     ]
     queryset = Device.objects.all()
-    serializer_class = DeviceSerializer
+    serializer_class = DeviceListSerializer
