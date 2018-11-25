@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from apps.projects.models import Project
+from apps.auth_management.models import Organization
 
 
 class ProjectListSerializer(serializers.ModelSerializer):
@@ -14,15 +15,24 @@ class ProjectListSerializer(serializers.ModelSerializer):
         return obj.id
 
 
-class ProjectSerializer(serializers.ModelSerializer):
+class ProjectCreateSerializer(serializers.ModelSerializer):
+    organization_id = serializers.UUIDField()
+
     class Meta:
         model = Project
-        fields = ("id", "organization", "name", "script")
+        fields = ("organization_id", "name", "script")
 
-# class ProjectSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Project
-#         fields = ("id", "organization", "name", "script")
+    def validate_organization_id(self, value):
+        org_query = Organization.objects.filter(id=value)
+        if org_query.exists():
+            return value
+        raise serializers.ValidationError("Must be a valid organization_id.")
+
+    def create(self, validated_data):
+        org_id = validated_data.pop('organization_id')
+        org_instance = Organization.objects.get(id=org_id)
+        instance = Project.objects.create(organization=org_instance, **validated_data)
+        return instance
 
 
 class ProjectMinimalSerializer(serializers.ModelSerializer):
