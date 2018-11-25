@@ -8,8 +8,6 @@ from apps.projects.models import Project
 
 import pytest
 
-import random
-import string
 import datetime
 
 
@@ -196,7 +194,7 @@ class DeviceUpdateTest(BaseDefaultTest):
         device_name = self.random_string()
         response = self.client.patch(
             reverse(
-                'devices:detail-devices', 
+                'devices:detail-devices',
                 kwargs={'pk': self.test_device.id},
             ),
             data={

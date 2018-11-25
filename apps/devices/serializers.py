@@ -1,11 +1,7 @@
-from django.contrib.auth.models import User
-
 from rest_framework import serializers
 
 from apps.devices.models import Device
-from apps.projects.models import Project
 from apps.projects.serializers import ProjectMinimalSerializer
-from apps.auth_management.serializers import UserMinimalSerializer
 
 
 class DeviceListSerializer(serializers.ModelSerializer):

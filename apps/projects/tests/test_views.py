@@ -205,7 +205,7 @@ class ProjectUpdateTest(BaseDefaultTest):
         content = response.json()
         for sent_key, sent_value in to_send.items():
             self.assertEqual(content.get(sent_key), sent_value)
-    
+
     def test_update_project_id_read_only(self):
         to_send = {'project_id': self.uuid4()}
 
