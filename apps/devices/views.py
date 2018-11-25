@@ -1,7 +1,10 @@
 from rest_framework import generics, permissions
+
 from oauth2_provider.contrib.rest_framework import TokenHasReadWriteScope
+from django_filters import rest_framework as filters
 
 from apps.devices.permissions import IsOwnerOrReadOnly, IsOrganizationMember
+from apps.devices.filters import DeviceFilter
 from apps.devices.models import Device
 from apps.devices.serializers import (
     DeviceListSerializer, DeviceCreateSerializer)
@@ -15,6 +18,8 @@ class DeviceListCreateView(generics.ListCreateAPIView):
     create:
     Create devices for new projects or existing projects related with the user
     """
+    filter_backends = (filters.DjangoFilterBackend,)
+    filterset_class = DeviceFilter
     permission_classes = [permissions.IsAuthenticated, TokenHasReadWriteScope]
     serializer_class = DeviceCreateSerializer
 
@@ -22,31 +27,11 @@ class DeviceListCreateView(generics.ListCreateAPIView):
         if self.request.method == 'GET':
             return DeviceListSerializer
 
-    def check_params(self):
-        formated_params = {}
-
-        # valid_params = {'API Param Name': 'Model Field Reference'}
-        valid_params = {
-            'project_id': 'project__id'
-        }
-        query_params = self.request.query_params
-
-        for valid_key, field_ref in valid_params.items():
-            param = query_params.get(valid_key, None)
-            if param:
-                formated_params.update({field_ref: param})
-        return formated_params
-
     def get_queryset(self):
         user = self.request.user
-        params = self.check_params()
-
         if user.is_superuser:
-            return Device.objects.filter(**params)
-
-        return Device.objects.filter(
-            project__organization__users=user, **params
-        )
+            return Device.objects.all()
+        return Device.objects.filter(project__organization__users=user)
 
 
 class DeviceDetailView(generics.RetrieveUpdateDestroyAPIView):
