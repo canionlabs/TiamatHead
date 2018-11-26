@@ -24,8 +24,12 @@ class GroupSerializer(serializers.ModelSerializer):
 
 
 class OrganizationSerializer(serializers.ModelSerializer):
-    users = UserMinimalSerializer()
+    users = UserMinimalSerializer(many=True)
+    organization_id = serializers.UUIDField()
 
     class Meta:
         model = Organization
-        fields = ('name', 'users')
+        fields = ('organization_id', 'name', 'users')
+
+    def get_organization_id(self, obj):
+        return obj.id
