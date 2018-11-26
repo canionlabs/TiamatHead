@@ -30,10 +30,6 @@ class ProjectListCreateView(MixinProjectView, generics.ListCreateAPIView):
     filterset_class = ProjectFilter
     serializer_class = ProjectSerializer
 
-    # def get_read_serializer_class(self):
-    #     if self.request.method == 'GET':
-    #         return ProjectListSerializer
-
 
 class ProjectDetailView(MixinProjectView, generics.RetrieveUpdateDestroyAPIView):
     """
