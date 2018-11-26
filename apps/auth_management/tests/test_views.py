@@ -7,70 +7,38 @@ from django.utils import timezone
 from rest_framework.test import APITestCase
 from rest_framework.authtoken.models import Token
 
-from oauth2_provider.models import get_access_token_model, get_application_model
+from apps.common.utils._tests import BaseDefaultTest, AccessToken, UserModel
 
 import datetime
-import uuid
 
 
-Application = get_application_model()
-AccessToken = get_access_token_model()
-UserModel = get_user_model()
-
-
-class BaseTest(APITestCase):
+class TestUserManagementView(BaseDefaultTest):
+    """
+    Testing POST 'projects:list-create-projects'
+    """
     def setUp(self):
-        self.test_group = Group.objects.create(
-            name='Test Group'
-        )
-
+        super(TestUserManagementView, self).setUp()
+        self.adm_urls = ['list-users', 'detail-users', 'list-groups']
+        self.test_group = Group.objects.create(name=self.random_string())
         self.test_superuser = UserModel.objects.create_superuser(
-            username='admintest',
-            email='admintest@test.ts', password=str(uuid.uuid4())
+            username=self.random_string(),
+            email=self.random_email(), password=self.uuid4()
         )
-
-        self.test_user = UserModel.objects.create_user(
-            username='test',
-            email='test@test.ts', password=str(uuid.uuid4())
-        )
-
-        self.application = Application(
-            name="Test Application",
-            user=self.test_superuser,
-            client_type=Application.CLIENT_CONFIDENTIAL,
-            authorization_grant_type=Application.GRANT_AUTHORIZATION_CODE,
-        )
-        self.application.save()
-
         self.valid_admin_token = AccessToken.objects.create(
-            user=self.test_superuser, token=uuid.uuid4().hex,
+            user=self.test_superuser, token=self.uuid4(),
             application=self.application,
             expires=timezone.now() + datetime.timedelta(days=1),
             scope="read write dolphin"
         )
-
-        self.valid_user_token = AccessToken.objects.create(
-            user=self.test_user, token=uuid.uuid4().hex,
-            application=self.application,
-            expires=timezone.now() + datetime.timedelta(days=1),
-            scope="read write dolphin"
-        )
-
         self.auth_admin_headers = {
             "HTTP_AUTHORIZATION": f"Bearer {self.valid_admin_token.token}",
         }
 
-        self.auth_user_headers = {
-            "HTTP_AUTHORIZATION": f"Bearer {self.valid_user_token.token}",
-        }
-
-        self.adm_urls = ['list-users', 'detail-users', 'list-groups']
-    
     def tearDown(self):
+        super(TestUserManagementView, self).tearDown()
+        self.test_group.delete()
         self.test_superuser.delete()
-
-
-class TestUserManagementView(BaseTest):
+        self.valid_admin_token.delete()
 
     def test_non_admin_users(self):
         for adm_url in self.adm_urls:
