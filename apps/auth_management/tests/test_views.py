@@ -10,6 +10,8 @@ from rest_framework.authtoken.models import Token
 from apps.auth_management.models import Organization
 from apps.common.utils._tests import BaseDefaultTest, AccessToken, UserModel
 
+import pytest
+
 import datetime
 
 
@@ -100,6 +102,13 @@ class TestUserManagementView(BaseDefaultTest):
         self.assertDictEqual(content, expected_response)
 
 
+@pytest.fixture(scope='class')
+def class_organizations(request):
+    serialized_organization = {'name': request.instance.random_string()}
+    request.cls.serialized_organization = serialized_organization
+
+
+@pytest.mark.usefixtures('class_organizations')
 class OrganizationListCreateTest(BaseDefaultTest):
     """
     Testing POST/GET in 'auth_management:list-create-organizations'
@@ -136,19 +145,80 @@ class OrganizationListCreateTest(BaseDefaultTest):
         content = response.json()
         self.assertEqual(len(content), self.test_user.organizations.all().count())
 
-    def test_list_organizations_as_supersuper(self):
-        response = self.client.get(
+
+class OrganizationAddUsersTest(BaseDefaultTest):
+    """
+    Testing POST in 'auth_management:create-organization-users'
+    """
+    BASE_URL = 'auth_management:create-organization-users'
+
+    def test_add_organization_users(self):
+        to_send = {'users': [self.test_user.username]}
+        response = self.client.post(
             reverse(
-                'auth_management:list-create-organizations'
+                self.BASE_URL, kwargs={'pk': self.organization.id}
             ),
+            data=to_send,
             **self.auth_user_headers
         )
-        self.assertEqual(status.HTTP_200_OK, response.status_code)
+        self.assertEqual(status.HTTP_201_CREATED, response.status_code)
         content = response.json()
-        org_query = Organization.objects.all()
-        self.assertEqual(len(content), org_query.count())
+        self.assertDictEqual(content, to_send)
 
-        for content_org in content:
-            org_id = content_org.get('organization_id')
-            self.assertTrue(org_query.filter(id=org_id).exists())
 
+class OrganizationRemoveUsersTest(BaseDefaultTest):
+    """
+    Testing DELETE in 'auth_management:remove-organization-users'
+    """
+    BASE_URL = 'auth_management:remove-organization-users'
+
+    def test_remove_organization_users(self):
+        to_send = {'users': [self.test_user.username]}
+        response = self.client.delete(
+            reverse(
+                self.BASE_URL, kwargs={'pk': self.organization.id}
+            ),
+            data=to_send,
+            **self.auth_user_headers
+        )
+        self.assertEqual(status.HTTP_204_NO_CONTENT, response.status_code)
+        content = response.json()
+        self.assertDictEqual(content, to_send)
+
+    # def test_list_organization_users(self):
+    #     response = self.client.get(
+    #         reverse(self.BASE_URL, kwargs={'pk': self.organization.id}),
+    #         **self.auth_user_headers
+    #     )
+    #     import pdb; pdb.set_trace()
+    #     self.assertEqual(status.HTTP_200_OK, response.status_code)
+
+    # def test_list_organizations_as_supersuper(self):
+    #     response = self.client.get(
+    #         reverse(
+    #             'auth_management:list-create-organizations'
+    #         ),
+    #         **self.auth_user_headers
+    #     )
+    #     self.assertEqual(status.HTTP_200_OK, response.status_code)
+    #     content = response.json()
+    #     self.assertEqual(len(content), self.org_query.count())
+    #     for content_org in content:
+    #         org_id = content_org.get('organization_id')
+    #         self.assertTrue(self.org_query.filter(id=org_id).exists())
+
+    # def test_create_organization(self):
+    #     to_send = self.serialized_organization
+    #     to_send.update(
+    #         {'users': [{'username': self.test_user.username}]}
+    #     )
+    #     response = self.client.post(
+    #         reverse(
+    #             'auth_management:list-create-organizations'
+    #         ),
+    #         **self.auth_user_headers,
+    #         data=to_send
+    #     )
+
+    #     import pdb; pdb.set_trace()
+    #     self.assertEqual(status.HTTP_201_CREATED, response.status_code)
