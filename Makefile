@@ -4,3 +4,6 @@ ff:
 
 tests:
 	docker-compose run -e DJANGO_SETTINGS_MODULE=tiamat_head.settings.tests --no-deps --rm web sh -c "./manage.py makemigrations && ./manage.py migrate && py.test"
+
+run:
+	docker-compose up

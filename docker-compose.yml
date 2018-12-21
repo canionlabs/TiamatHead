@@ -18,8 +18,13 @@ services:
       args:
         requirements: requirements/dev.txt
     container_name: tiamat_web
-    command: python manage.py migrate --noinput
-    command: python manage.py runserver 0.0.0.0:8000
+    command:
+      - /bin/sh
+      - -c
+      - |
+        ./manage.py makemigrations
+        ./manage.py migrate --noinput
+        ./manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/project
     expose:
