@@ -14,7 +14,7 @@ class UserSerializer(serializers.ModelSerializer):
 class UserMinimalSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ("username", "id")
+        fields = ("username",)
 
 
 class GroupSerializer(serializers.ModelSerializer):
@@ -23,28 +23,37 @@ class GroupSerializer(serializers.ModelSerializer):
         fields = ("name",)
 
 
-class OrganizationSerializer(serializers.ModelSerializer):
-    users = UserMinimalSerializer(many=True)
+class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
+    users = serializers.HyperlinkedRelatedField(
+        many=True, view_name='auth_management:detail-users', read_only=True
+    )
     organization_id = serializers.UUIDField()
 
     class Meta:
         model = Organization
         fields = ('organization_id', 'name', 'users')
 
+    def get_organization_id(self, obj):
+        return obj.id
+
 
 class OrganizationUserSerializer(serializers.Serializer):
     users = serializers.ListField()
 
-    def validate_users(self, value):
-        user_map = dict()
-        for username in value:
+    @staticmethod
+    def check_users(users):
+        user_map = {}
+        for username in users:
             user_query = User.objects.filter(username=username)
             if not user_query.exists():
                 return serializers.ValidationError(
-                    f"{value} is not a valid username."
+                    f"{username} is not a valid username."
                 )
             user_map[username] = user_query.first()
         return user_map
+
+    def validate_users(self, value):
+        return self.check_users(value)
 
     def check_organization(self):
         org_params = self.context.get('view').kwargs

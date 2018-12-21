@@ -182,8 +182,6 @@ class OrganizationRemoveUsersTest(BaseDefaultTest):
             **self.auth_user_headers
         )
         self.assertEqual(status.HTTP_204_NO_CONTENT, response.status_code)
-        content = response.json()
-        self.assertDictEqual(content, to_send)
 
     # def test_list_organization_users(self):
     #     response = self.client.get(

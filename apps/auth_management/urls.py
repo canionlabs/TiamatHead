@@ -2,7 +2,7 @@ from django.urls import path, include
 
 from apps.auth_management.views import UserListView, \
     UserDetailsView, GroupListView, OrganizationListCreateView , \
-    OrganizationAddUsersView
+    OrganizationAddUsersView, OrganizationRemoveUsersView
 
 
 
@@ -22,5 +22,10 @@ urlpatterns = [
         'organizations/<pk>/users/',
         OrganizationAddUsersView.as_view(),
         name='create-organization-users'
-    )
+    ),
+    path(
+        'organizations/<pk>/users/<user-pk>/',
+        OrganizationRemoveUsersView.as_view(),
+        name='remove-organization-users'
+    ),
 ]
