@@ -24,9 +24,7 @@ class GroupSerializer(serializers.ModelSerializer):
 
 
 class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
-    users = serializers.HyperlinkedRelatedField(
-        many=True, view_name='auth_management:detail-users', read_only=True
-    )
+    users = UserMinimalSerializer(many=True)
     organization_id = serializers.UUIDField()
 
     class Meta:
