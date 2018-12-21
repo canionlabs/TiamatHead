@@ -1,3 +1,7 @@
 from django.contrib import admin
+from apps.auth_management.models import Organization
 
-# Register your models here.
+
+@admin.register(Organization)
+class OrganizationAdmin(admin.ModelAdmin):
+    pass
