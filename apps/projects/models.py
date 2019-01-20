@@ -16,7 +16,6 @@ class Project(DefaultModel):
     organization = models.ForeignKey(
         Organization, on_delete=models.CASCADE, related_name='projects'
     )
-    members = models.ManyToManyField(User, related_name='projects')
     name = models.CharField(max_length=175)
     script = JSONField(null=True, blank=True)
 
