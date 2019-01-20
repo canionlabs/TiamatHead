@@ -15,7 +15,7 @@ class ProjectModelTest(APITestCase, BaseTest):
         )
 
         self.project = Project.objects.create(
-            name = self.random_string(),
+            name=self.random_string(),
             organization=self.organization
         )
 
