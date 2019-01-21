@@ -2,7 +2,8 @@ from django.urls import reverse
 from django.utils import timezone
 
 from apps.auth_management.models import Organization
-from apps.common.utils._tests import BaseDefaultTest, UserModel, AccessToken
+from apps.common.utils.base_tests import BaseDefaultTest, UserModel, \
+    AccessToken
 from apps.devices.models import Device
 from apps.projects.models import Project
 

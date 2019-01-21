@@ -4,7 +4,8 @@ from django.utils import timezone
 from django.urls import reverse
 
 from rest_framework.test import APITestCase
-from oauth2_provider.models import get_access_token_model, get_application_model
+from oauth2_provider.models import get_access_token_model, \
+    get_application_model
 
 from apps.devices.models import Device
 from apps.projects.models import Project

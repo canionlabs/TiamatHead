@@ -1,4 +1,4 @@
-from apps.common.utils._tests import BaseDefaultTest
+from apps.common.utils.base_tests import BaseDefaultTest
 
 import datetime
 import uuid
