@@ -1,6 +1,6 @@
 from rest_framework.test import APITestCase
 
-from apps.common.utils._tests import BaseTest, UserModel
+from apps.common.utils.base_tests import BaseTest, UserModel
 from apps.projects.models import Project
 from apps.auth_management.models import Organization
 
