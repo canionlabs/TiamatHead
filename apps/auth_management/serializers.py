@@ -23,9 +23,9 @@ class GroupSerializer(serializers.ModelSerializer):
         fields = ("name",)
 
 
-class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
-    users = UserMinimalSerializer(many=True)
-    organization_id = serializers.UUIDField()
+class OrganizationSerializer(serializers.ModelSerializer):
+    users = UserMinimalSerializer(many=True, required=False)
+    organization_id = serializers.UUIDField(read_only=True)
 
     class Meta:
         model = Organization
@@ -33,6 +33,26 @@ class OrganizationSerializer(serializers.HyperlinkedModelSerializer):
 
     def get_organization_id(self, obj):
         return obj.id
+
+    def _check_users(self, users):
+        user_map = {}
+        for username in users:
+            user_query = User.objects.filter(username=username)
+            if not user_query.exists():
+                return serializers.ValidationError(
+                    f"{username} is not a valid username."
+                )
+            user_map[username] = user_query.first()
+        return user_map
+
+    def create(self, validated_data):
+        raw_usernames = validated_data.pop('users')
+        users = self._check_users(raw_usernames)
+
+        organization = Organization.objects.create(**validated_data)
+        for user in users.values():
+            organization.users.add(user)
+        return organization
 
 
 class OrganizationUserSerializer(serializers.Serializer):
