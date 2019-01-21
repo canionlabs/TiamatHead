@@ -2,7 +2,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from rest_framework import status
-from rest_framework.test import APITestCase, force_authenticate
+from rest_framework.test import APITestCase
 from model_mommy import mommy
 
 from apps.common.utils.base_tests import BaseTest, UserModel, \

@@ -8,7 +8,8 @@ from rest_framework.test import APITestCase
 from rest_framework.authtoken.models import Token
 
 from apps.auth_management.models import Organization
-from apps.common.utils._tests import BaseDefaultTest, AccessToken, UserModel
+from apps.common.utils.base_tests import BaseDefaultTest, AccessToken, \
+    UserModel
 
 import pytest
 
