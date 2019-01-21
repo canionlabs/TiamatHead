@@ -6,14 +6,16 @@ from rest_framework.response import Response
 from oauth2_provider.contrib.rest_framework import TokenHasReadWriteScope
 
 from apps.projects.filters import ProjectFilter
+from apps.projects.permissions import IsOrganizationMember
 from apps.projects.models import Project
 from apps.projects.serializers import ProjectSerializer
 
 
 class ProjectViewSet(viewsets.ModelViewSet):
     serializer_class = ProjectSerializer
-    permissions_classes = [
-        permissions.IsAuthenticated, TokenHasReadWriteScope
+    permission_classes = [
+        permissions.IsAuthenticated, TokenHasReadWriteScope,
+        IsOrganizationMember
     ]
     filter_backends = [filters.DjangoFilterBackend, ]
     filterset_class = ProjectFilter
